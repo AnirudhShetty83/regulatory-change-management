@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Repository
 public interface RegulatoryChangeRepository extends JpaRepository<RegulatoryChange, Long> {
@@ -30,4 +31,13 @@ public interface RegulatoryChangeRepository extends JpaRepository<RegulatoryChan
            "LOWER(r.category) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
            "LOWER(r.regulatoryBody) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<RegulatoryChange> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
+    // 5. Dashboard KPIs
+    long countByIsDeletedFalse();
+
+    @Query("SELECT r.status, COUNT(r) FROM RegulatoryChange r WHERE r.isDeleted = false GROUP BY r.status")
+    List<Object[]> countByStatus();
+
+    @Query("SELECT r.priority, COUNT(r) FROM RegulatoryChange r WHERE r.isDeleted = false GROUP BY r.priority")
+    List<Object[]> countByPriority();
 }
