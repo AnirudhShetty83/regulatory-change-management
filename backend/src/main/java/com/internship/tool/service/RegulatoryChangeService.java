@@ -25,16 +25,25 @@ public class RegulatoryChangeService {
         RegulatoryChange existing = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Regulatory Change not found with id: " + id));
 
-        // Note: In a real app, you might use an ObjectMapper or map specific fields explicitly
-        if (updateData.getTitle() != null) existing.setTitle(updateData.getTitle());
-        if (updateData.getDescription() != null) existing.setDescription(updateData.getDescription());
-        if (updateData.getCategory() != null) existing.setCategory(updateData.getCategory());
-        if (updateData.getRegulatoryBody() != null) existing.setRegulatoryBody(updateData.getRegulatoryBody());
-        if (updateData.getStatus() != null) existing.setStatus(updateData.getStatus());
-        if (updateData.getPriority() != null) existing.setPriority(updateData.getPriority());
-        if (updateData.getImpactScore() != null) existing.setImpactScore(updateData.getImpactScore());
-        if (updateData.getEffectiveDate() != null) existing.setEffectiveDate(updateData.getEffectiveDate());
-        if (updateData.getDeadline() != null) existing.setDeadline(updateData.getDeadline());
+        // use an ObjectMapper or map specific fields explicitly
+        if (updateData.getTitle() != null)
+            existing.setTitle(updateData.getTitle());
+        if (updateData.getDescription() != null)
+            existing.setDescription(updateData.getDescription());
+        if (updateData.getCategory() != null)
+            existing.setCategory(updateData.getCategory());
+        if (updateData.getRegulatoryBody() != null)
+            existing.setRegulatoryBody(updateData.getRegulatoryBody());
+        if (updateData.getStatus() != null)
+            existing.setStatus(updateData.getStatus());
+        if (updateData.getPriority() != null)
+            existing.setPriority(updateData.getPriority());
+        if (updateData.getImpactScore() != null)
+            existing.setImpactScore(updateData.getImpactScore());
+        if (updateData.getEffectiveDate() != null)
+            existing.setEffectiveDate(updateData.getEffectiveDate());
+        if (updateData.getDeadline() != null)
+            existing.setDeadline(updateData.getDeadline());
 
         return repository.save(existing);
     }
@@ -57,7 +66,7 @@ public class RegulatoryChangeService {
     @Transactional(readOnly = true)
     public Map<String, Object> getDashboardStats() {
         Map<String, Object> stats = new HashMap<>();
-        
+
         long totalActive = repository.countByIsDeletedFalse();
         stats.put("totalActive", totalActive);
 
