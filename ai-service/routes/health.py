@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify
 import time
 from services.chroma_service import ChromaService
+from services.cache_service import get_cache_stats
 
 health_bp = Blueprint("health", __name__)
 
@@ -31,5 +32,6 @@ def health():
         "model": MODEL_NAME,
         "avg_response_time": round(avg_time, 3),
         "chroma_doc_count": doc_count,
-        "uptime_seconds": int(uptime)
+        "uptime_seconds": int(uptime),
+        "cache": get_cache_stats() 
     })
