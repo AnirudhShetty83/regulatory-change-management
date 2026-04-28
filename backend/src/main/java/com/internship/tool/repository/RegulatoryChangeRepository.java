@@ -40,4 +40,14 @@ public interface RegulatoryChangeRepository extends JpaRepository<RegulatoryChan
 
     @Query("SELECT r.priority, COUNT(r) FROM RegulatoryChange r WHERE r.isDeleted = false GROUP BY r.priority")
     List<Object[]> countByPriority();
+
+    // 6. Scheduler Queries
+    @Query("SELECT r FROM RegulatoryChange r WHERE r.isDeleted = false AND r.status NOT IN :excludedStatuses AND r.deadline < CURRENT_DATE")
+    List<RegulatoryChange> findOverdueChanges(@Param("excludedStatuses") List<ChangeStatus> excludedStatuses);
+
+    @Query("SELECT r FROM RegulatoryChange r WHERE r.isDeleted = false AND r.status NOT IN :excludedStatuses AND r.deadline = :targetDate")
+    List<RegulatoryChange> findUpcomingDeadlines(@Param("excludedStatuses") List<ChangeStatus> excludedStatuses, @Param("targetDate") LocalDate targetDate);
+
+    @Query("SELECT r FROM RegulatoryChange r WHERE r.isDeleted = false AND r.status NOT IN :excludedStatuses")
+    List<RegulatoryChange> findActiveChangesForSummary(@Param("excludedStatuses") List<ChangeStatus> excludedStatuses);
 }
