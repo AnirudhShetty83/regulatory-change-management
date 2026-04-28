@@ -1,6 +1,10 @@
+from tracemalloc import start
+
 from flask import Blueprint, request, jsonify
 from services.chroma_service import ChromaService
 from services.groq_client import GroqClient
+import time
+from routes.health import response_times
 
 query_bp = Blueprint("query", __name__)
 
@@ -44,7 +48,17 @@ Answer clearly and concisely.
 """
 
         # Step 4: Call Groq
+        start = time.time()
+        
         answer = groq.generate(prompt)
+        
+        end = time.time()
+
+        response_times.append(end - start)
+
+        # keep only last 10
+        if len(response_times) > 10:
+            response_times.pop(0)
 
         return jsonify({
             "answer": answer,

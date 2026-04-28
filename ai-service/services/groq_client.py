@@ -11,7 +11,6 @@ logging.basicConfig(level=logging.INFO)
 class GroqClient:
     def __init__(self):
         self.api_key = os.getenv("GROQ_API_KEY")
-        print("API KEY LOADED:", self.api_key)
         if not self.api_key:
             raise ValueError("GROQ_API_KEY not found in .env")
 
