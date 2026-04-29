@@ -6,7 +6,7 @@ export default function Form() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [form, setForm] = useState({ title: "", description: "", source: "", status: "PENDING", effectiveDate: "" });
-  const [errors, setErrors] = useState({ effectiveDate: "" });
+  const [errors, setErrors] = useState({ effectiveDate: "", title: "" });
 
   useEffect(() => {
     if (id) api.get(`/changes/${id}`).then(({ data }) => setForm(data));
@@ -21,10 +21,22 @@ export default function Form() {
     return "";
   };
 
+  const validateTitle = (value) => {
+    if (!value || value.trim().length === 0) return "Title is required";
+    if (value.length > 255) return "Title must be 255 characters or less";
+    return "";
+  };
+
   const handleDateChange = (value) => {
     const err = validateDate(value);
     setErrors({ ...errors, effectiveDate: err });
     setForm({ ...form, effectiveDate: value });
+  };
+
+  const handleTitleChange = (value) => {
+    const err = validateTitle(value);
+    setErrors({ ...errors, title: err });
+    setForm({ ...form, title: value });
   };
 
   const handleSubmit = async (e) => {
@@ -51,8 +63,9 @@ export default function Form() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-          <input className="w-full px-3 py-2 border rounded shadow-sm" placeholder="Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
+          <label className="block text-sm font-medium text-gray-700 mb-1">Title <span className="text-red-600">*</span></label>
+          <input className="w-full px-3 py-2 border rounded shadow-sm" placeholder="Title" value={form.title} onChange={e => handleTitleChange(e.target.value)} />
+          {errors.title && <p className="text-sm text-red-600 mt-1">{errors.title}</p>}
         </div>
 
         <div>
@@ -84,7 +97,7 @@ export default function Form() {
         </div>
 
         <div className="flex items-center space-x-3 pt-2">
-          <button type="submit" disabled={!!errors.effectiveDate || !form.effectiveDate} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50" >Save</button>
+          <button type="submit" disabled={!!errors.effectiveDate || !form.effectiveDate || !!errors.title || !form.title} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50" >Save</button>
           <button type="button" onClick={() => navigate(-1)} className="px-4 py-2 border rounded">Cancel</button>
         </div>
       </form>
