@@ -23,6 +23,12 @@ public class RegulatoryChangeController {
     }
 
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    @PostMapping
+    public ResponseEntity<RegulatoryChange> createChange(@RequestBody RegulatoryChange newChange) {
+        return ResponseEntity.ok(service.createChange(newChange));
+    }
+
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<RegulatoryChange> updateChange(
             @PathVariable Long id, 

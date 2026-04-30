@@ -21,6 +21,11 @@ public class RegulatoryChangeService {
         this.repository = repository;
     }
 
+    public RegulatoryChange createChange(RegulatoryChange newChange) {
+        newChange.setIsDeleted(false);
+        return repository.save(newChange);
+    }
+
     public RegulatoryChange updateChange(Long id, RegulatoryChange updateData) {
         RegulatoryChange existing = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Regulatory Change not found with id: " + id));
