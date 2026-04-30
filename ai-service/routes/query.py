@@ -18,6 +18,15 @@ def query():
         return jsonify({"error": "Missing 'question' field"}), 400
 
     question = data["question"]
+    
+    if not question.strip():
+        return jsonify({"error": "Question cannot be empty"}), 400
+
+    if len(question) < 5:
+        return jsonify({"error": "Question too short"}), 400
+
+    if len(question) > 500:
+        return jsonify({"error": "Question too long"}), 400
 
     try:
         # STEP 0 — CACHE CHECK
@@ -50,13 +59,19 @@ You are an AI assistant.
 
 Use ONLY the context below to answer the question.
 
+Rules:
+- Do NOT use outside knowledge
+- If answer is clearly supported by context, use it
+- If partially supported, give best possible answer based on context
+- If not supported at all, say:
+  "Answer not available in provided context"
+- Be concise and clear
+
 Context:
 {context}
 
 Question:
 {question}
-
-Answer clearly and concisely.
 """
 
         # Step 4: Call Groq + track time

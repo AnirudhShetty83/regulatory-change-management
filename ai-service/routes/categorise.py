@@ -16,6 +16,15 @@ def categorise():
         return jsonify({"error": "Missing 'text' field"}), 400
 
     user_text = data["text"]
+    
+    if not user_text.strip():
+        return jsonify({"error": "Text cannot be empty"}), 400
+
+    if len(user_text) < 5:
+        return jsonify({"error": "Text too short"}), 400
+
+    if len(user_text) > 1000:
+        return jsonify({"error": "Text too long"}), 400
 
     prompt = f"""
 You are a strict classification AI.
@@ -28,6 +37,16 @@ Rules:
 - DO NOT include markdown
 - DO NOT add any text outside JSON
 - Confidence must be between 0 and 1
+
+Decision rules:
+- Regulatory rules, penalties, enforcement → Compliance
+- Laws, court cases, legal disputes → Legal
+- Financial reports, audits, accounting → Financial
+- Risk assessment, mitigation → Risk
+- Internal processes, workflows → Operational
+
+Always choose the MOST relevant category.
+
 
 Text:
 \"\"\"{user_text}\"\"\"
