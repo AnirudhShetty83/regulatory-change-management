@@ -7,9 +7,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 
 @Service
 @Transactional
@@ -92,5 +97,35 @@ public class RegulatoryChangeService {
         stats.put("byPriority", byPriority);
 
         return stats;
+    }
+
+    @Transactional(readOnly = true)
+    public byte[] exportToCsv() {
+        Page<RegulatoryChange> allActive = repository.findAllByIsDeletedFalse(Pageable.unpaged());
+        List<RegulatoryChange> changes = allActive.getContent();
+
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+             CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), CSVFormat.DEFAULT.builder()
+                     .setHeader("ID", "Title", "Category", "Regulatory Body", "Status", "Priority", "Impact Score", "Effective Date", "Deadline")
+                     .build())) {
+
+            for (RegulatoryChange change : changes) {
+                csvPrinter.printRecord(
+                        change.getId(),
+                        change.getTitle(),
+                        change.getCategory(),
+                        change.getRegulatoryBody(),
+                        change.getStatus() != null ? change.getStatus().name() : "",
+                        change.getPriority() != null ? change.getPriority().name() : "",
+                        change.getImpactScore(),
+                        change.getEffectiveDate(),
+                        change.getDeadline()
+                );
+            }
+            csvPrinter.flush();
+            return out.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to export CSV data: " + e.getMessage());
+        }
     }
 }
