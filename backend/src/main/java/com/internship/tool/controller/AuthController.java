@@ -59,10 +59,19 @@ public class AuthController {
             return ResponseEntity.badRequest().build();
         }
 
+        Role userRole = Role.VIEWER;
+        if (request.getRole() != null) {
+            try {
+                userRole = Role.valueOf(request.getRole().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                userRole = Role.VIEWER;
+            }
+        }
+
         User user = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.VIEWER)
+                .role(userRole)
                 .build();
         userRepository.save(user);
 
