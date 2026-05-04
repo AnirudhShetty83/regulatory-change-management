@@ -6,10 +6,11 @@ def test_chroma():
     service = ChromaService()
 
     test_docs = [
-        "Regulatory change management is the process of tracking and implementing changes in laws and regulations.",
-        "Compliance officers use tools to automate the monitoring of regulatory updates.",
-        "Risk management involves identifying and mitigating potential threats to an organization."
-    ]
+    "Compliance is the process of adhering to laws, regulations, and organizational policies.",
+    "Regulatory change management is the process of tracking and implementing changes in laws and regulations.",
+    "Compliance officers use tools to automate the monitoring of regulatory updates.",
+    "Risk management involves identifying and mitigating potential threats to an organization."
+]
 
     test_metadatas = [
         {"source": "doc1", "topic": "rcm"},
