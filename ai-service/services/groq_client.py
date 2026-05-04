@@ -42,12 +42,19 @@ class GroqClient:
                 response.raise_for_status()
                 data = response.json()
 
-                # Safe parsing
                 if "choices" in data and len(data["choices"]) > 0:
-                    return data["choices"][0]["message"]["content"]
+                    return {
+                        "content": data["choices"][0]["message"]["content"],
+                        "tokens": data.get("usage", {}).get("total_tokens", 0),
+                        "model": data.get("model", "llama-3.3-70b-versatile")
+                    }
 
                 logging.warning("Unexpected response format")
-                return "Fallback: Unexpected response"
+                return {
+                    "content": "Fallback: Unexpected response",
+                    "tokens": 0,
+                    "model": "unknown"
+                }
 
             except requests.exceptions.Timeout:
                 logging.error(f"Timeout (attempt {attempt+1})")
@@ -55,6 +62,10 @@ class GroqClient:
             except requests.exceptions.RequestException as e:
                 logging.error(f"Request failed: {e}")
 
-            time.sleep(2 ** attempt)  # exponential backoff
+            time.sleep(2 ** attempt)
 
-        return "Fallback: AI service unavailable"
+        return {
+            "content": "Fallback: AI service unavailable",
+            "tokens": 0,
+            "model": "unknown"
+        }
