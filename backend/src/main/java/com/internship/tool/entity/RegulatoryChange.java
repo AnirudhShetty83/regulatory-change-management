@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -50,8 +51,8 @@ public class RegulatoryChange {
     @Builder.Default
     private Priority priority = Priority.P2;
 
-    @Column(name = "impact_score")
-    private Double impactScore;
+    @Column(name = "impact_score", precision = 3, scale = 1)
+    private BigDecimal impactScore;
 
     @Column(name = "effective_date")
     private LocalDate effectiveDate;

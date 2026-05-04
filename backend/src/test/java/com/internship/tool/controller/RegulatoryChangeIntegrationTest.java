@@ -96,7 +96,7 @@ public class RegulatoryChangeIntegrationTest {
         change.setCategory("Test Category");
         change.setStatus(ChangeStatus.DRAFT);
         change.setPriority(Priority.P1);
-        change.setImpactScore(5.5);
+        change.setImpactScore(new java.math.BigDecimal("5.5"));
 
         HttpEntity<RegulatoryChange> request = new HttpEntity<>(change, headers);
 
