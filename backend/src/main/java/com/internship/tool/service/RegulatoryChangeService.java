@@ -2,14 +2,20 @@ package com.internship.tool.service;
 
 import com.internship.tool.entity.RegulatoryChange;
 import com.internship.tool.repository.RegulatoryChangeRepository;
+import com.internship.tool.exception.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 
 @Service
 @Transactional
@@ -28,7 +34,7 @@ public class RegulatoryChangeService {
 
     public RegulatoryChange updateChange(Long id, RegulatoryChange updateData) {
         RegulatoryChange existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Regulatory Change not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Regulatory Change not found with id: " + id));
 
         // use an ObjectMapper or map specific fields explicitly
         if (updateData.getTitle() != null)
@@ -49,13 +55,15 @@ public class RegulatoryChangeService {
             existing.setEffectiveDate(updateData.getEffectiveDate());
         if (updateData.getDeadline() != null)
             existing.setDeadline(updateData.getDeadline());
+        if (updateData.getAssignedTo() != null)
+            existing.setAssignedTo(updateData.getAssignedTo());
 
         return repository.save(existing);
     }
 
     public void softDelete(Long id) {
         RegulatoryChange existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Regulatory Change not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Regulatory Change not found with id: " + id));
         existing.setIsDeleted(true);
         repository.save(existing);
     }
@@ -92,5 +100,35 @@ public class RegulatoryChangeService {
         stats.put("byPriority", byPriority);
 
         return stats;
+    }
+
+    @Transactional(readOnly = true)
+    public byte[] exportToCsv() {
+        Page<RegulatoryChange> allActive = repository.findAllByIsDeletedFalse(Pageable.unpaged());
+        List<RegulatoryChange> changes = allActive.getContent();
+
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+             CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), CSVFormat.DEFAULT.builder()
+                     .setHeader("ID", "Title", "Category", "Regulatory Body", "Status", "Priority", "Impact Score", "Effective Date", "Deadline")
+                     .build())) {
+
+            for (RegulatoryChange change : changes) {
+                csvPrinter.printRecord(
+                        change.getId(),
+                        change.getTitle(),
+                        change.getCategory(),
+                        change.getRegulatoryBody(),
+                        change.getStatus() != null ? change.getStatus().name() : "",
+                        change.getPriority() != null ? change.getPriority().name() : "",
+                        change.getImpactScore(),
+                        change.getEffectiveDate(),
+                        change.getDeadline()
+                );
+            }
+            csvPrinter.flush();
+            return out.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to export CSV data: " + e.getMessage());
+        }
     }
 }
