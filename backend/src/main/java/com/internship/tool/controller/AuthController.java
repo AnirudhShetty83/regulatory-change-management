@@ -26,10 +26,10 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
 
     public AuthController(AuthenticationManager authenticationManager,
-                          CustomUserDetailsService userDetailsService,
-                          JwtUtil jwtUtil,
-                          UserRepository userRepository,
-                          PasswordEncoder passwordEncoder) {
+            CustomUserDetailsService userDetailsService,
+            JwtUtil jwtUtil,
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder) {
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.jwtUtil = jwtUtil;
@@ -40,12 +40,11 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
         final String jwt = jwtUtil.generateToken(userDetails);
-        
+
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow();
 
         return ResponseEntity.ok(AuthResponse.builder()
@@ -60,10 +59,19 @@ public class AuthController {
             return ResponseEntity.badRequest().build();
         }
 
+        Role userRole = Role.VIEWER;
+        if (request.getRole() != null) {
+            try {
+                userRole = Role.valueOf(request.getRole().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                userRole = Role.VIEWER;
+            }
+        }
+
         User user = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.VIEWER)
+                .role(userRole)
                 .build();
         userRepository.save(user);
 
