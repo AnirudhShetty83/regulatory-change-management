@@ -1,6 +1,8 @@
 package com.internship.tool.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -21,23 +23,28 @@ public class RegulatoryChange {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Title is required")
     @Column(nullable = false)
     private String title;
 
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @NotBlank(message = "Regulatory body is required")
     @Column(name = "regulatory_body", nullable = false)
     private String regulatoryBody;
 
+    @NotBlank(message = "Category is required")
     @Column(nullable = false, length = 100)
     private String category;
 
+    @NotNull(message = "Status cannot be null")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     @Builder.Default
     private ChangeStatus status = ChangeStatus.DRAFT;
 
+    @NotNull(message = "Priority cannot be null")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     @Builder.Default

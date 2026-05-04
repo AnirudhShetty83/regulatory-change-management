@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.Map;
 
 @RestController
@@ -26,7 +27,7 @@ public class RegulatoryChangeController {
 
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @PostMapping
-    public ResponseEntity<RegulatoryChange> createChange(@RequestBody RegulatoryChange newChange) {
+    public ResponseEntity<RegulatoryChange> createChange(@Valid @RequestBody RegulatoryChange newChange) {
         return ResponseEntity.ok(service.createChange(newChange));
     }
 
@@ -34,7 +35,7 @@ public class RegulatoryChangeController {
     @PutMapping("/{id}")
     public ResponseEntity<RegulatoryChange> updateChange(
             @PathVariable Long id, 
-            @RequestBody RegulatoryChange updateData) {
+            @Valid @RequestBody RegulatoryChange updateData) {
         return ResponseEntity.ok(service.updateChange(id, updateData));
     }
 

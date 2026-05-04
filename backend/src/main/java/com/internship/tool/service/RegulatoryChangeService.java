@@ -2,6 +2,7 @@ package com.internship.tool.service;
 
 import com.internship.tool.entity.RegulatoryChange;
 import com.internship.tool.repository.RegulatoryChangeRepository;
+import com.internship.tool.exception.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,7 @@ public class RegulatoryChangeService {
 
     public RegulatoryChange updateChange(Long id, RegulatoryChange updateData) {
         RegulatoryChange existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Regulatory Change not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Regulatory Change not found with id: " + id));
 
         // use an ObjectMapper or map specific fields explicitly
         if (updateData.getTitle() != null)
@@ -54,13 +55,15 @@ public class RegulatoryChangeService {
             existing.setEffectiveDate(updateData.getEffectiveDate());
         if (updateData.getDeadline() != null)
             existing.setDeadline(updateData.getDeadline());
+        if (updateData.getAssignedTo() != null)
+            existing.setAssignedTo(updateData.getAssignedTo());
 
         return repository.save(existing);
     }
 
     public void softDelete(Long id) {
         RegulatoryChange existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Regulatory Change not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Regulatory Change not found with id: " + id));
         existing.setIsDeleted(true);
         repository.save(existing);
     }

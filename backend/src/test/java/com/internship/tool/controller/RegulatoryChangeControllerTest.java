@@ -53,6 +53,8 @@ class RegulatoryChangeControllerTest {
         RegulatoryChange mockChange = new RegulatoryChange();
         mockChange.setId(1L);
         mockChange.setTitle("New Rule");
+        mockChange.setCategory("Privacy");
+        mockChange.setRegulatoryBody("FCC");
 
         when(service.createChange(any(RegulatoryChange.class))).thenReturn(mockChange);
 
@@ -70,6 +72,8 @@ class RegulatoryChangeControllerTest {
         RegulatoryChange mockChange = new RegulatoryChange();
         mockChange.setId(1L);
         mockChange.setTitle("Updated Rule");
+        mockChange.setCategory("Privacy");
+        mockChange.setRegulatoryBody("FCC");
 
         when(service.updateChange(eq(1L), any(RegulatoryChange.class))).thenReturn(mockChange);
 
