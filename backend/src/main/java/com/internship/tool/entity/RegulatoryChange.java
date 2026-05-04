@@ -43,7 +43,7 @@ public class RegulatoryChange {
     @Builder.Default
     private Priority priority = Priority.P2;
 
-    @Column(name = "impact_score", precision = 3, scale = 1)
+    @Column(name = "impact_score")
     private Double impactScore;
 
     @Column(name = "effective_date")
