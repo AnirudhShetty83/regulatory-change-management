@@ -1,0 +1,15 @@
+You are a regulatory expert.
+
+Input: {input}
+
+Provide:
+1. Summary
+2. Risk Level
+3. Key Points
+
+Based on the input, give 3 recommendations:
+- Action
+- Description
+- Priority (High/Medium/Low)
+
+Input: {input}
