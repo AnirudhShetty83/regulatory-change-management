@@ -6,3 +6,5 @@ sentence-transformers
 numpy<2
 pysqlite3
 pypdf
+redis==5.0.1
+flask-limiter==3.5.0

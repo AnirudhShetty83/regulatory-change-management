@@ -28,20 +28,20 @@ public class NotificationScheduler {
         this.emailService = emailService;
     }
 
-    // DEMO MODE: runs every 10 seconds (change back to "0 0 9 * * *" after demo)
-    @Scheduled(cron = "*/10 * * * * *")
+    // Runs every day at 9:00 AM
+    @Scheduled(cron = "0 0 9 * * *")
     public void sendDailyOverdueReminders() {
         logger.info("Running daily overdue reminder job...");
         List<RegulatoryChange> overdueItems = repository.findOverdueChanges(excludedStatuses);
-        
+
         for (RegulatoryChange item : overdueItems) {
             emailService.sendOverdueAlert(item.getTitle(), item.getDeadline().toString());
         }
         logger.info("Finished processing {} overdue items.", overdueItems.size());
     }
 
-    // DEMO MODE: runs every 10 seconds (change back to "0 0 9 * * *" after demo)
-    @Scheduled(cron = "*/10 * * * * *")
+    // Runs every day at 9:00 AM
+    @Scheduled(cron = "0 0 9 * * *")
     public void sendAdvanceDeadlineAlerts() {
         logger.info("Running advance deadline alert job...");
         LocalDate nextWeek = LocalDate.now().plusDays(7);

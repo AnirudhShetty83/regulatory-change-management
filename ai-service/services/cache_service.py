@@ -1,9 +1,12 @@
 import redis
 import hashlib
 import json
+import os
 
-# connect to Redis
-r = redis.Redis(host='localhost', port=6379, decode_responses=True)
+# Connect to Redis — use env vars so Docker networking works correctly
+_REDIS_HOST = os.getenv("REDIS_HOST", "redis")
+_REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
+r = redis.Redis(host=_REDIS_HOST, port=_REDIS_PORT, decode_responses=True)
 
 # stats
 cache_hits = 0

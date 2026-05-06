@@ -22,13 +22,20 @@ import org.apache.commons.csv.CSVPrinter;
 public class RegulatoryChangeService {
 
     private final RegulatoryChangeRepository repository;
+    private final com.internship.tool.client.AiServiceClient aiServiceClient;
 
-    public RegulatoryChangeService(RegulatoryChangeRepository repository) {
+    public RegulatoryChangeService(RegulatoryChangeRepository repository, com.internship.tool.client.AiServiceClient aiServiceClient) {
         this.repository = repository;
+        this.aiServiceClient = aiServiceClient;
     }
 
     public RegulatoryChange createChange(RegulatoryChange newChange) {
         newChange.setIsDeleted(false);
+        
+        // Automatically generate AI description/summary
+        String summary = aiServiceClient.generateSummary(newChange.getTitle(), newChange.getDescription());
+        newChange.setAiDescription(summary);
+        
         return repository.save(newChange);
     }
 
