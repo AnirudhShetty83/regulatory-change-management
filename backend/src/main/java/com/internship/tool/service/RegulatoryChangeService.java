@@ -76,6 +76,24 @@ public class RegulatoryChangeService {
     }
 
     @Transactional(readOnly = true)
+    public Page<RegulatoryChange> getAssignedChanges(String email, Pageable pageable) {
+        return repository.findByAssignedToAndIsDeletedFalse(email, pageable);
+    }
+
+    public RegulatoryChange updateStatus(Long id, com.internship.tool.entity.ChangeStatus newStatus, String userEmail) {
+        RegulatoryChange existing = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Regulatory Change not found with id: " + id));
+        
+        // Simple validation: Ensure worker can only update tasks assigned to them
+        if (userEmail != null && existing.getAssignedTo() != null && !existing.getAssignedTo().equalsIgnoreCase(userEmail)) {
+            throw new IllegalArgumentException("You are not assigned to this regulatory change.");
+        }
+        
+        existing.setStatus(newStatus);
+        return repository.save(existing);
+    }
+
+    @Transactional(readOnly = true)
     public Page<RegulatoryChange> searchChanges(String keyword, Pageable pageable) {
         if (keyword == null || keyword.trim().isEmpty()) {
             return repository.findAllByIsDeletedFalse(pageable);

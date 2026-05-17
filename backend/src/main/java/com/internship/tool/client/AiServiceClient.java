@@ -55,4 +55,30 @@ public class AiServiceClient {
             return "AI Summary unavailable.";
         }
     }
+    public String askChatbot(String question) {
+        try {
+            String url = aiServiceUrl + "/query";
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            
+            Map<String, String> body = new HashMap<>();
+            body.put("question", question);
+            
+            HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
+            
+            ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+            
+            if (response.getBody() != null && response.getBody().containsKey("data")) {
+                Map<String, Object> data = (Map<String, Object>) response.getBody().get("data");
+                if (data.containsKey("answer")) {
+                    return (String) data.get("answer");
+                }
+            }
+            return "Sorry, I couldn't process your request.";
+        } catch (Exception e) {
+            logger.error("Failed to query AI chatbot", e);
+            return "Sorry, the AI service is currently unavailable.";
+        }
+    }
 }

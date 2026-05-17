@@ -10,42 +10,33 @@ const STATUS_BADGE = {
   ARCHIVED:    'badge badge-archived',
 };
 
-export default function List() {
+export default function WorkerDashboard() {
   const navigate = useNavigate();
   const [changes, setChanges] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchQ, setSearchQ] = useState('');
   const [error, setError] = useState('');
 
-  const fetchChanges = async (q = '') => {
+  const fetchAssignedChanges = async () => {
     setLoading(true);
     setError('');
     try {
-      const url = q ? `/api/changes/search?q=${encodeURIComponent(q)}` : '/api/changes';
-      const res = await api.get(url);
+      const res = await api.get('/api/changes/assigned');
       setChanges(Array.isArray(res.data) ? res.data : res.data.content ?? []);
     } catch (err) {
-      setError('Failed to load regulatory changes.');
+      setError('Failed to load assigned regulatory changes.');
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchChanges(); }, []);
+  useEffect(() => { fetchAssignedChanges(); }, []);
 
-  const handleSearch = (e) => {
-    const val = e.target.value;
-    setSearchQ(val);
-    if (val.length === 0 || val.length >= 2) fetchChanges(val);
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this regulatory change?')) return;
+  const handleStatusChange = async (id, newStatus) => {
     try {
-      await api.delete(`/api/changes/${id}`);
-      setChanges((prev) => prev.filter((c) => c.id !== id));
-    } catch {
-      alert('Delete failed. Please try again.');
+      await api.put(`/api/changes/${id}/status?status=${newStatus}`);
+      fetchAssignedChanges();
+    } catch (err) {
+      alert('Failed to update status.');
     }
   };
 
@@ -55,21 +46,12 @@ export default function List() {
     navigate('/login');
   };
 
-  const role = localStorage.getItem('role');
-
   return (
     <>
       <nav className="topbar">
         <span className="topbar-brand">⚖️ RCM Portal</span>
         <div className="topbar-nav">
-          <button id="go-dashboard" className="btn btn-secondary btn-sm" onClick={() => navigate('/dashboard')}>
-            📊 Dashboard
-          </button>
-          {(role === 'MANAGER' || role === 'ADMIN') && (
-            <button id="add-new-btn" className="btn btn-primary btn-sm" onClick={() => navigate('/form')}>
-              + Add New
-            </button>
-          )}
+          <span style={{ color: '#94a3b8', marginRight: '16px' }}>Worker Dashboard</span>
           <button id="logout-btn" className="btn btn-danger btn-sm" onClick={handleLogout}>
             Logout
           </button>
@@ -78,17 +60,7 @@ export default function List() {
 
       <div className="page-container">
         <div className="page-header">
-          <h1>Regulatory Changes</h1>
-        </div>
-
-        <div className="search-bar">
-          <input
-            id="search-input"
-            type="text"
-            value={searchQ}
-            onChange={handleSearch}
-            placeholder="🔍 Search by title, category…"
-          />
+          <h1>My Assigned Tasks</h1>
         </div>
 
         {error && <div className="alert alert-error">{error}</div>}
@@ -98,18 +70,16 @@ export default function List() {
             <div className="spinner-wrap"><div className="spinner" /></div>
           ) : changes.length === 0 ? (
             <div className="empty-state">
-              <h3>No records found</h3>
-              <p>Try a different search term or add a new regulatory change.</p>
+              <h3>No tasks assigned</h3>
+              <p>You have no regulatory changes assigned to you right now.</p>
             </div>
           ) : (
             <table>
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Title</th>
-                  <th>Category</th>
+                  <th>Title & Description</th>
                   <th>Status</th>
-                  <th>Priority</th>
                   <th>Deadline</th>
                   <th>Actions</th>
                 </tr>
@@ -118,7 +88,7 @@ export default function List() {
                 {changes.map((c) => (
                   <tr key={c.id}>
                     <td style={{ color: '#64748b', fontSize: '12px' }}>#{c.id}</td>
-                    <td style={{ fontWeight: 500, color: '#f1f5f9', maxWidth: 220 }}>
+                    <td style={{ fontWeight: 500, color: '#f1f5f9', maxWidth: 300 }}>
                       <div style={{ marginBottom: '4px' }}>{c.title}</div>
                       {c.aiDescription && (
                         <div style={{ fontSize: '12px', color: '#94a3b8', fontStyle: 'italic', lineHeight: '1.4' }}>
@@ -126,26 +96,26 @@ export default function List() {
                         </div>
                       )}
                     </td>
-                    <td>{c.category}</td>
                     <td>
                       <span className={STATUS_BADGE[c.status] ?? 'badge badge-draft'}>
                         {c.status}
                       </span>
                     </td>
-                    <td>{c.priority}</td>
                     <td style={{ fontSize: '13px' }}>
                       {c.deadline ? new Date(c.deadline).toLocaleDateString() : '—'}
                     </td>
                     <td>
-                      {role === 'ADMIN' && (
-                        <button
-                          id={`delete-btn-${c.id}`}
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleDelete(c.id)}
-                        >
-                          Delete
-                        </button>
-                      )}
+                      <select 
+                        value={c.status} 
+                        onChange={(e) => handleStatusChange(c.id, e.target.value)}
+                        className="form-control" 
+                        style={{ padding: '4px 8px', width: 'auto', display: 'inline-block' }}
+                      >
+                        <option value="DRAFT">Draft</option>
+                        <option value="SUBMITTED">Submitted</option>
+                        <option value="APPROVED">Approved</option>
+                        <option value="IMPLEMENTED">Implemented</option>
+                      </select>
                     </td>
                   </tr>
                 ))}

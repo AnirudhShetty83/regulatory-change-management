@@ -93,4 +93,28 @@ public class RegulatoryChangeController {
                 .contentType(MediaType.parseMediaType("text/csv"))
                 .body(csvData);
     }
+    @PreAuthorize("hasAnyRole('WORKER', 'MANAGER', 'ADMIN')")
+    @GetMapping("/assigned")
+    public ResponseEntity<Page<RegulatoryChange>> listAssignedChanges(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir,
+            java.security.Principal principal) {
+        
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? 
+                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        return ResponseEntity.ok(service.getAssignedChanges(principal.getName(), pageable));
+    }
+
+    @PreAuthorize("hasAnyRole('WORKER', 'MANAGER', 'ADMIN')")
+    @PutMapping("/{id}/status")
+    public ResponseEntity<RegulatoryChange> updateStatus(
+            @PathVariable Long id,
+            @RequestParam com.internship.tool.entity.ChangeStatus status,
+            java.security.Principal principal) {
+        return ResponseEntity.ok(service.updateStatus(id, status, principal.getName()));
+    }
 }

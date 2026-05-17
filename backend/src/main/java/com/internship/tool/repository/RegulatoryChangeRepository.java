@@ -21,6 +21,9 @@ public interface RegulatoryChangeRepository extends JpaRepository<RegulatoryChan
     // 2. Filter by Status
     Page<RegulatoryChange> findByStatusAndIsDeletedFalse(ChangeStatus status, Pageable pageable);
 
+    // Filter by Assignee (Worker Role)
+    Page<RegulatoryChange> findByAssignedToAndIsDeletedFalse(String assignedTo, Pageable pageable);
+
     // 3. Find by Deadline Date Range
     Page<RegulatoryChange> findByDeadlineBetweenAndIsDeletedFalse(LocalDate startDate, LocalDate endDate, Pageable pageable);
 

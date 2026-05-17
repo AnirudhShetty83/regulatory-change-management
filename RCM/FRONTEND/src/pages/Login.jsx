@@ -18,7 +18,12 @@ export default function Login() {
       const { token, role } = res.data;
       localStorage.setItem('token', token);
       localStorage.setItem('role', role);
-      navigate('/list');
+      
+      if (role === 'WORKER') {
+        navigate('/worker-dashboard');
+      } else {
+        navigate('/list');
+      }
     } catch (err) {
       setError(
         err.response?.data?.message ||
@@ -76,6 +81,10 @@ export default function Login() {
             {loading ? 'Signing in…' : 'Sign In'}
           </button>
         </form>
+
+        <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '14px' }}>
+          Don't have an account? <a href="#" onClick={(e) => { e.preventDefault(); navigate('/register'); }} style={{ color: '#3b82f6', textDecoration: 'none' }}>Sign Up</a>
+        </div>
       </div>
     </div>
   );

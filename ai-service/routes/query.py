@@ -27,9 +27,6 @@ def query():
     if not question.strip():
         return jsonify({"error": "Question cannot be empty"}), 400
 
-    if len(question) < 5:
-        return jsonify({"error": "Question too short"}), 400
-
     if len(question) > 500:
         return jsonify({"error": "Question too long"}), 400
 
@@ -54,25 +51,19 @@ def query():
         results = chroma.query(question, n_results=3)
         docs = results.get("documents", [[]])[0]
 
-        if not docs:
-            raise Exception("No relevant documents")
-
         # Step 2: Build context
-        context = "\n\n".join(docs)
+        context = "\n\n".join(docs) if docs else "No specific regulatory context available."
 
         # Step 3: Prompt
         prompt = f"""
-You are an AI assistant.
+You are an AI assistant for a Regulatory Change Management (RCM) platform.
 
-Use ONLY the context below to answer the question.
+Answer the user's question as best as you can.
 
 Rules:
-- Do NOT use outside knowledge
-- If answer is clearly supported by context, use it
-- If partially supported, give best possible answer based on context
-- If not supported at all, say:
-  "Answer not available in provided context"
-- Be concise and clear
+- If context is provided and relevant, prioritize it.
+- If context is NOT relevant or unavailable, use your general knowledge to answer, especially for greetings or general questions like 'what is AI' or 'what is RCM'.
+- Be concise, helpful, and clear.
 
 Context:
 {context}
